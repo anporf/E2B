@@ -1,0 +1,233 @@
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 38 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, app, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+March 10, 2025 - 09:13:46
+Django version 5.0.2, using settings 'e2b4free.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 38 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, app, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+March 10, 2025 - 09:16:08
+Django version 5.0.2, using settings 'e2b4free.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User not found: test
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=
+DEBUG:   HTTP_USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 YaBrowser/25.2.0.0 Safari/537.36
+DEBUG:   HTTP_SEC_CH_UA: "Not A(Brand";v="8", "Chromium";v="132", "YaBrowser";v="25.2", "Yowser";v="2.5"
+DEBUG:   HTTP_SEC_CH_UA_MOBILE: ?0
+DEBUG:   HTTP_ACCEPT: */*
+DEBUG:   HTTP_ORIGIN: http://localhost:8080
+DEBUG:   HTTP_SEC_FETCH_SITE: same-site
+DEBUG:   HTTP_SEC_FETCH_MODE: cors
+DEBUG:   HTTP_SEC_FETCH_DEST: empty
+DEBUG:   HTTP_REFERER: http://localhost:8080/
+DEBUG:   HTTP_ACCEPT_ENCODING: gzip, deflate, br, zstd
+DEBUG:   HTTP_ACCEPT_LANGUAGE: ru,en;q=0.9
+DEBUG: Found authorization header: Basic dGVzdDoxMjM=
+DEBUG: Extracted username: test
+DEBUG: User found, password valid: True
+DEBUG: Request headers:
+DEBUG:   HTTP_HOST: localhost:8000
+DEBUG:   HTTP_CONNECTION: keep-alive
+DEBUG:   HTTP_SEC_CH_UA_PLATFORM: "macOS"
+DEBUG:   HTTP_AUTHORIZATION: Basic dGVzdDoxMjM=

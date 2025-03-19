@@ -1,0 +1,45 @@
+kg,kilogram,dose
+g,gram,dose
+mg,milligram,dose
+ug,microgram,dose
+ng,nanogram,dose
+pg,picogram,dose
+mg/kg,milligram/kilogram,dose
+ug/kg,microgram/kilogram,dose
+mg/mL,milligram/milliliter,dose
+mg/m2,milligram/sq. meter,dose
+ug/m2,microgram/sq. meter,dose
+L,liter,dose
+mL,milliliter,dose
+uL,microliter,dose
+Bq,becquerel,dose
+GBq,gigabecquerel,dose
+MBq,megabecquerel,dose
+kBq,killobecquerel,dose
+Ci,curie,dose
+mCi,millicurie,dose
+uCi,microcurie,dose
+nCi,nanocurie,dose
+mol,mole,dose
+mmol,millimole,dose
+umol,micromole,dose
+[iU],international unit,dose
+k[iU],kilo-international unit,dose
+M[iU],mega-international unit,dose
+[iU]/kg,international unit/kilogram,dose
+meq,milliequivalent,dose
+%,percent,dose
+[drp],drop,dose
+Ms,megasecond,time
+a,year,time
+d,day,time
+h,hour,time
+ks,kilosecond,time
+min,minute,time
+mo,month,time
+ms,millisecond,time
+ns,nanosecond,time
+ps,picosecond,time
+s,second,time
+us,microsecond,time
+wk,week,time

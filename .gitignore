@@ -1,0 +1,7 @@
+pgadmin-data/*
+.DS_store
+dbdata/*
+data/*
+.idea/*
+frontend/dist/*
+frontend/node_modules/*
