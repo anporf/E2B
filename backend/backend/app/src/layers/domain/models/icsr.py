@@ -510,15 +510,15 @@ class G_k_drug_information(DomainModel):
 
     g_k_11_additional_information_drug: AN[L[2000]] | None = None
 
-    @classmethod
-    def _post_validate(cls, processor: pde.PostValidationProcessor):
-        super()._post_validate(processor)
-        processor.try_validate_with_fields(
-            error_message='Cannot have duplicate drug to reaction relations',
-            validate=lambda g_k_9_i_drug_reaction_matrix:
-                len(g_k_9_i_drug_reaction_matrix) ==
-                len(set(x.g_k_9_i_1_reaction_assessed for x in g_k_9_i_drug_reaction_matrix))
-        )
+    # @classmethod
+    # def _post_validate(cls, processor: pde.PostValidationProcessor):
+    #     super()._post_validate(processor)
+    #     processor.try_validate_with_fields(
+    #         error_message='Cannot have duplicate drug to reaction relations',
+    #         validate=lambda g_k_9_i_drug_reaction_matrix:
+    #             len(g_k_9_i_drug_reaction_matrix) ==
+    #             len(set(x.g_k_9_i_1_reaction_assessed for x in g_k_9_i_drug_reaction_matrix))
+    #     )
 
 
 class G_k_2_3_r_substance_id_strength(DomainModel):

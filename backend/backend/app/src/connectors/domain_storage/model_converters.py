@@ -93,15 +93,18 @@ class DomainToStorageModelConverter[S: DomainModel, T: StorageModel](pmc.Pydanti
 
         elif isinstance(source_model, dm.G_k_9_i_drug_reaction_matrix):
             rels = utils.get_or_create_dict_in_dict(shared_data.context, relation_key)
-            rels[source_model.g_k_9_i_1_reaction_assessed] = target_model
+            if source_model.g_k_9_i_1_reaction_assessed not in rels:
+                rels[source_model.g_k_9_i_1_reaction_assessed] = []
+            rels[source_model.g_k_9_i_1_reaction_assessed].append(target_model)
 
         elif isinstance(source_model, dm.ICSR):
             events = shared_data.context.get(events_key)
             rels = shared_data.context.get(relation_key)
             if not rels:
                 return
-            for id_, rel in rels.items():
-                rel.g_k_9_i_1_reaction_assessed = events[id_]
+            for id_, rel_list in rels.items():
+                for rel in rel_list:
+                    rel.g_k_9_i_1_reaction_assessed = events[id_]
 
 
 class StorageToDomainModelConverter[S: StorageModel, T: DomainModel](bmc.BaseModelConverter[S, T]):  

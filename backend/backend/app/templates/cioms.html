@@ -365,11 +365,14 @@
     
     .field-content {
         white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .continuation-page {
         page-break-before: always;
         padding: 20px;
+        font-family: sans-serif;
     }
     
     .continuation-section {
@@ -395,145 +398,347 @@
         display: none;
     }
 
-    .continuation-page {
+    /* Новые стили для страниц продолжения */
+    #continuation-pages {
         page-break-before: always;
-        padding: 20px;
-        font-family: sans-serif;
+    }
+    
+    .continuation-page-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #000;
+        margin-bottom: 15px;
+    }
+    
+    .continuation-page-title {
+        text-align: center;
+        font-weight: bold;
+        margin: 10px 0;
+        font-size: 12px;
+    }
+    
+    .continuation-subtitle {
+        font-weight: bold;
+        margin: 15px 0 5px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+        text-transform: uppercase;
+    }
+    
+    .reaction-info-item {
+        margin-bottom: 10px;
+    }
+    
+    .reaction-info-header {
+        font-weight: bold;
+    }
+    
+    .suspect-product-section {
+        margin-top: 15px;
+    }
+    
+    .product-reaction-level {
+        margin: 20px 0;
+        padding-left: 10px;
+    }
+    
+    .causality-item {
+        margin: 5px 0;
+    }
+    
+    .causality-header {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .concomitant-drug-item {
+        margin-bottom: 15px;
+    }
+    
+    .page-number {
+        text-align: right;
+    }
+    
+    .manufacturer-id {
+        text-align: left;
+    }
+    
+    .two-column {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .key-value {
+        display: flex;
+        margin-bottom: 5px;
+    }
+    
+    .key {
+        font-weight: bold;
+        min-width: 150px;
+    }
+    
+    .value {
+        flex: 1;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
-    @media print {
-        .continuation-page {
-            margin-top: 0;
-            padding-top: 0;
-        }
+    /* Улучшения для переноса текста */
+    textarea, .field-content {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
     }
-
-
 </style>
+
 <script>
     window.onload = function() {
+        generateContinuationPages();
+    };
+
+    function generateContinuationPages() {
+        let continuationContainer = document.getElementById('continuation-pages');
+        if (!continuationContainer) {
+            continuationContainer = document.createElement('div');
+            continuationContainer.id = 'continuation-pages';
+            document.body.appendChild(continuationContainer);
+        }
+        
+        continuationContainer.innerHTML = '';
+        
+        const manufacturerName = document.getElementById('name_and_address_of_manufacturer')?.value || '';
+        const manufacturerControlNo = document.getElementById('manufacturer_control_number')?.value || '';
+        const reportDate = document.getElementById('date_of_report')?.value || '';
+        
+        const overflowFields = [];
+        
         const fieldsToCheck = [
-            { 
-                element: document.getElementById('describe_reaction'),
-                title: '7 + 13 DESCRIBE REACTION(S) (including relevant tests/lab data)'
-            },
-            { 
-                element: document.getElementById('concomitant_drug_and_dates_of_administration'),
-                title: '22. CONCOMITANT DRUG(S) AND DATES OF ADMINISTRATION'
-            },
-            { 
-                element: document.getElementById('other_relevant_history'),
-                title: '23. OTHER RELEVANT HISTORY'
-            },
-            { 
-                element: document.getElementById('name_and_address_of_manufacturer'),
-                title: '24a. NAME AND ADDRESS OF MANUFACTURER'
-            }
+            { id: 'describe_reaction', title: '7 + 13 DESCRIBE REACTION(S)' },
+            { id: 'concomitant_drug_and_dates_of_administration', title: 'CONCOMITANT DRUG(S) AND DATES OF ADMINISTRATION' },
+            { id: 'other_relevant_history', title: 'OTHER RELEVANT HISTORY' },
+            { id: 'name_and_address_of_manufacturer', title: 'NAME AND ADDRESS OF MANUFACTURER' }
         ];
         
-        const continuations = [];
-        
         for (const field of fieldsToCheck) {
-            if (!field.element) continue;
+            const element = document.getElementById(field.id);
+            if (!element) continue;
             
-            const overflowText = checkFieldOverflow(field.element);
-            if (overflowText) {
-                continuations.push({
+            const content = element.value;
+            if (content && content.length > 300) { 
+                overflowFields.push({
+                    id: field.id,
                     title: field.title,
-                    content: overflowText
+                    content: content
                 });
+                
+                const contMarker = document.createElement('div');
+                contMarker.className = 'cont-marker';
+                contMarker.textContent = 'Cont...';
+                
+                const parent = element.parentElement;
+                if (parent) {
+                    parent.style.position = 'relative';
+                    parent.appendChild(contMarker);
+                }
+                
+                const truncatedText = truncateText(content, 300); // Уменьшили количество символов
+                element.value = truncatedText + ' ...';
             }
         }
         
-        if (continuations.length > 0) {
-            createContinuationPage(continuations);
-        } else {
-            const continuationPage = document.querySelector('.continuation-page');
-            if (continuationPage) {
-                continuationPage.style.display = 'none';
+        if (overflowFields.length > 0) {
+            const titleCont = document.createElement('div');
+            titleCont.textContent = 'Continued...';
+            titleCont.style.position = 'absolute';
+            titleCont.style.bottom = '10px';
+            titleCont.style.right = '10px';
+            titleCont.style.fontWeight = 'bold';
+            titleCont.style.fontSize = '10px';
+            
+            const titlePage = document.querySelector('section:first-of-type');
+            if (titlePage) {
+                titlePage.style.position = 'relative';
+                titlePage.appendChild(titleCont);
             }
+            
+            createContinuationPage(overflowFields, manufacturerName, manufacturerControlNo, reportDate);
         }
-    };
-    
-    function checkFieldOverflow(element) {
-        const originalText = element.value;
-        if (!originalText) return null;
-        
-        const maxHeight = element.clientHeight;
-        const lineHeight = parseInt(window.getComputedStyle(element).lineHeight) || 16;
-        const fontSize = parseInt(window.getComputedStyle(element).fontSize) || 10;
-        
-        const maxLines = Math.floor(maxHeight / lineHeight) - 1; // Оставляем запас
-        const charsPerLine = Math.floor(element.clientWidth / (fontSize * 0.6)); // Приблизительно
-        
-        const maxChars = maxLines * charsPerLine;
-        
-        if (originalText.length > maxChars) {
-            let cutPoint = maxChars;
-            while (cutPoint > maxChars * 0.8 && originalText[cutPoint] !== ' ') {
-                cutPoint--;
-            }
-            
-            if (cutPoint <= maxChars * 0.8) cutPoint = maxChars;
-            
-            const firstPageText = originalText.substring(0, cutPoint);
-            const secondPageText = originalText.substring(cutPoint);
-            
-            element.value = firstPageText + " ...";
-            
-            const contIndicator = document.createElement('div');
-            contIndicator.textContent = 'CONT';
-            contIndicator.style.position = 'absolute';
-            contIndicator.style.bottom = '5px';
-            contIndicator.style.right = '10px';
-            contIndicator.style.fontWeight = 'bold';
-            contIndicator.style.fontSize = '8px';
-            
-            const parent = element.parentElement;
-            const currentPosition = window.getComputedStyle(parent).position;
-            if (currentPosition !== 'relative') {
-                parent.style.position = 'relative';
-            }
-            
-            parent.appendChild(contIndicator);
-            
-            return secondPageText;
-        }
-        
-        return null;
     }
-    
-    function createContinuationPage(continuations) {
-        const contentContainer = document.getElementById('continuation-content');
-        if (!contentContainer) return;
+
+    function truncateText(text, maxLength) {
+        if (!text || text.length <= maxLength) return text;
         
-        contentContainer.innerHTML = '';
+        let cutPoint = maxLength;
+        while (cutPoint > maxLength * 0.8 && text[cutPoint] !== ' ') {
+            cutPoint--;
+        }
         
-        for (const item of continuations) {
+        if (cutPoint <= maxLength * 0.8) cutPoint = maxLength;
+        
+        return text.substring(0, cutPoint);
+    }
+
+    function createContinuationPage(overflowFields, manufacturerName, manufacturerControlNo, reportDate) {
+        const container = document.getElementById('continuation-pages');
+        
+        const page = document.createElement('div');
+        page.className = 'continuation-page';
+        
+        // Заголовок страницы
+        const header = document.createElement('div');
+        header.className = 'continuation-page-header';
+        
+        // Определяем короткое имя производителя (первая строка)
+        const shortManufacturerName = manufacturerName.split('\n')[0] || '';
+        
+        header.innerHTML = `
+            <div class="manufacturer-id">${shortManufacturerName}</div>
+            <div class="page-number">Page 2 | ${reportDate}</div>
+        `;
+        page.appendChild(header);
+        
+        const subtitle = document.createElement('div');
+        subtitle.className = 'continuation-page-title';
+        subtitle.textContent = `Continuation Sheet for CIOMS report, ${document.getElementById('health_professional')?.checked ? 'Health Professional' : 'Cont'}`;
+        page.appendChild(subtitle);
+        
+        addReactionInfoSection(page);
+        
+        for (const field of overflowFields) {
             const section = document.createElement('div');
-            section.style.marginBottom = '30px';
+            section.className = 'continuation-section';
             
-            const title = document.createElement('h2');
-            title.textContent = item.title;
-            title.style.fontSize = '14px';
-            title.style.fontWeight = 'bold';
-            title.style.marginBottom = '10px';
+            const title = document.createElement('div');
+            title.className = 'continuation-subtitle';
+            title.textContent = field.title;
             section.appendChild(title);
             
             const content = document.createElement('div');
-            content.style.whiteSpace = 'pre-wrap';
-            content.style.fontSize = '12px';
-            content.style.lineHeight = '1.5';
+            content.className = 'field-content';
             
-            const formattedText = formatTextWithLineBreaks(item.content, 80);
-            content.textContent = formattedText;
+            const continuationText = field.content.substring(300);
+            content.textContent = continuationText;
             
             section.appendChild(content);
-            contentContainer.appendChild(section);
+            page.appendChild(section);
         }
+        
+        const footer = document.createElement('div');
+        footer.className = 'continuation-page-header';
+        footer.innerHTML = `
+            <div>Mfr. Control Number: ${manufacturerControlNo || ''}</div>
+            <div>Page 2</div>
+        `;
+        page.appendChild(footer);
+        
+        container.appendChild(page);
     }
-    
+
+    function addReactionInfoSection(page) {
+        const reactionSection = document.createElement('div');
+        reactionSection.className = 'continuation-section';
+        
+        const reactionTitle = document.createElement('div');
+        reactionTitle.className = 'continuation-subtitle';
+        reactionTitle.textContent = 'REACTION INFORMATION';
+        reactionSection.appendChild(reactionTitle);
+        
+        const reactionDescription = document.getElementById('describe_reaction')?.value || '';
+        const reactionStartDay = document.getElementById('reaction_onset_day')?.value || '';
+        const reactionStartMonth = document.getElementById('reaction_onset_month')?.value || '';
+        const reactionStartYear = document.getElementById('reaction_onset_year')?.value || '';
+        const reactionStartDate = `${reactionStartDay}.${reactionStartMonth}.${reactionStartYear}`;
+        
+        const reactionItem = document.createElement('div');
+        reactionItem.className = 'reaction-info-item';
+        reactionItem.innerHTML = `
+            <div class="reaction-info-header">Reaction #1</div>
+            <div>${truncateText(reactionDescription, 100) || 'No description provided'}...</div>
+            <div>Start date: ${reactionStartDate}</div>
+        `;
+        reactionSection.appendChild(reactionItem);
+        
+        page.appendChild(reactionSection);
+        
+        addSuspectProductSection(page);
+    }
+
+    function addSuspectProductSection(page) {
+        const suspectProductSection = document.createElement('div');
+        suspectProductSection.className = 'continuation-section';
+        
+        const suspectTitle = document.createElement('div');
+        suspectTitle.className = 'continuation-subtitle';
+        suspectTitle.textContent = 'SUSPECT PRODUCT';
+        suspectProductSection.appendChild(suspectTitle);
+        
+        const drugName = document.getElementById('suspect_drug_1_name')?.value || '';
+        const drugDose = document.getElementById('suspect_drug_1_daily_dose')?.value || '';
+        const drugRoute = document.getElementById('suspect_drug_1_route')?.value || '';
+        const drugIndication = document.getElementById('suspect_drug_1_indication_for_use')?.value || '';
+        
+        if (drugName) {
+            const drugSection = document.createElement('div');
+            drugSection.className = 'suspect-product-section';
+            
+            drugSection.innerHTML = `
+                <div class="key-value">
+                    <div class="key">Suspect drug #1:</div>
+                    <div class="value">${drugName || 'Unknown'}</div>
+                </div>
+                <div class="key-value">
+                    <div class="key">Daily dose:</div>
+                    <div class="value">${drugDose || 'Unknown'}</div>
+                </div>
+                <div class="key-value">
+                    <div class="key">Route:</div>
+                    <div class="value">${drugRoute || 'Unknown'}</div>
+                </div>
+                <div class="key-value">
+                    <div class="key">Indication:</div>
+                    <div class="value">${drugIndication || 'Unknown'}</div>
+                </div>
+            `;
+            
+            const matrixSection = document.createElement('div');
+            matrixSection.className = 'product-reaction-level';
+            
+            matrixSection.innerHTML = `
+                <div class="continuation-subtitle">Product-Reaction level</div>
+                
+                <div class="key-value">
+                    <div class="key">Seq.No.:</div>
+                    <div class="value">1</div>
+                </div>
+                <div class="key-value">
+                    <div class="key">Drug:</div>
+                    <div class="value">${drugName || 'Unknown'}</div>
+                </div>
+                
+                <div class="causality-header">Causality</div>
+                
+                <div class="causality-item">
+                    <div>Outcome after Change in dose: ${document.getElementById('abate_Y')?.checked ? 'Improved' : (document.getElementById('abate_N')?.checked ? 'No change' : 'Not applicable')}</div>
+                    <div>Outcome after reintro. of dose: ${document.getElementById('reappear_Y')?.checked ? 'Recurred' : (document.getElementById('reappear_N')?.checked ? 'Did not recur' : 'Not applicable')}</div>
+                    <div>Causality as per reporter (Drug/Vaccine): Not Reported</div>
+                    <div>Causality as per Mfr.(Drug/Vaccine): Possible</div>
+                    <div>Dechallenge: ${document.getElementById('abate_Y')?.checked ? 'Positive' : (document.getElementById('abate_N')?.checked ? 'Negative' : 'N/A')}</div>
+                </div>
+            `;
+            drugSection.appendChild(matrixSection);
+            suspectProductSection.appendChild(drugSection);
+        } else {
+            suspectProductSection.innerHTML += '<div>No Suspected product</div>';
+        }
+        
+        page.appendChild(suspectProductSection);
+    }
+
     function formatTextWithLineBreaks(text, maxLineLength) {
+        if (!text) return "";
+        
         const lines = text.split('\n');
         
         const formattedLines = lines.map(line => {
@@ -867,23 +1072,12 @@
     </div>
 </section>
 
-<section class="continuation-page">
-    <h1 style="text-align: center; font-size: 16px; margin-bottom: 20px;">CIOMS FORM - CONTINUATION</h1>
-    
-    <div id="continuation-content" style="padding: 10px; line-height: 1.5;">
+<!-- Контейнер для страниц продолжения -->
+<div id="continuation-pages"></div>
 
-    </div>
-</section>
-
-
-<div class="button">
+<div>
     <button onclick="print()">Save as PDF</button>
 </div>
 
 </body>
-<script>
-    truncateText("describe_reaction", "describe_reaction_continue");
-    truncateText("concomitant_drug_and_dates_of_administration", "concomitant_drugs_continue");
-    truncateText("other_relevant_history", "other_history_continue");
-</script>
 </html>
