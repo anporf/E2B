@@ -171,6 +171,11 @@ export const UploadXml = () => {
             if (response.results) {
                 response.results.forEach((result, index) => {
                     const fileName = filesToImport[index]?.fileName || result.filename || `File ${index + 1}`;
+                    result.icsr_results.forEach((info, indexInternal) => {
+                        if (!info.success) {
+                            alert(info.info)
+                        }
+                    });
                     message += `${fileName}: ${result.success ? "Imported (ID: " + result.id + ")" : "Failed - " + (result.error || "Unknown error")}\n`;
                 });
             }

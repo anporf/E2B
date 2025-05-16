@@ -16,6 +16,7 @@ from uuid import UUID
 
 from django import http
 from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
 from django.shortcuts import render
 from django.utils import timezone as djtz
 from django.views import View
@@ -455,7 +456,7 @@ class ExportMultipleXmlView(BaseView):
 
     def convert_single_to_xml(self, icsr, root):
         def set_icsr_field(root, key, obj, field, get_value=lambda x: str(x.value)):
-            if obj is not None and hasattr(obj, field) and getattr(obj, field) is not None:
+            if obj is not None and hasattr(obj, field) and getattr(obj, field) is not None and get_value(getattr(obj, field)) != "None":
                 if key is not None:
                     root.set(key, get_value(getattr(obj, field)))
                 else:
@@ -1230,7 +1231,6 @@ class ExportMultipleXmlView(BaseView):
                                         )
                                 organizer.append(component_new)
                 # end of subject1
-        
                 components = self.find(adverseEventAssessment, "component")
                 for component in components:
                     causalityAssessment = self.find(component, "causalityAssessment")
@@ -1523,7 +1523,7 @@ class ImportMultipleXmlView(BaseView):
                         "error": "PORR_IN049016UV element not found"
                     })
                     continue
-                iscr_ids = []
+                icsr_statuses = []
                 result_file = []
                 for i, porr_elem in enumerate((porr_elements if isinstance(porr_elements, list) else [porr_elements]), start=1):
                     icsr = ICSR()
@@ -1551,11 +1551,18 @@ class ImportMultipleXmlView(BaseView):
                             "validation_status": make_pretty_errors(icsr.errors)
                         })
                         continue
-                    icsr, status = self.domain_service.create(icsr)
-                    
-                    if not status:
-                        raise Exception(json.dumps(icsr.errors, indent=2))
-                    iscr_ids.append(icsr.id)
+                    c_1_1 = icsr.c_1_identification_case_safety_report.c_1_1_sender_safety_report_unique_id
+                    try:
+                        icsr, _ = self.domain_service.create(icsr)
+                        icsr_statuses.append({
+                            "sucsess": True,
+                            "info": f'An ICSR object with C.1.1 = {c_1_1} successfully created'
+                        })
+                    except IntegrityError as ex:
+                        icsr_statuses.append({
+                            "success": False,
+                            "info": f'C.1.1 = {c_1_1} already exists. This object was not created'
+                        })
                 if is_validation:
                     results.append({
                         "success": True,
@@ -1565,7 +1572,7 @@ class ImportMultipleXmlView(BaseView):
                     results.append({
                         "success": True,
                         "filename": f"file_{idx}",
-                        "icsr_result_ids": iscr_ids
+                        "icsr_results": icsr_statuses
                     })
             response_data = {
                 "results": results,
@@ -1575,6 +1582,7 @@ class ImportMultipleXmlView(BaseView):
             }
             return self.respond_with_object_as_json(response_data, HTTPStatus.OK)
         except Exception as e:
+
             traceback.print_exc()
             print(f"Error in ImportMultipleXmlView: {str(e)}")
             return http.HttpResponse(f'Error processing request: {str(e)}', 
@@ -1637,6 +1645,8 @@ class ImportMultipleXmlView(BaseView):
             return field_info.annotation
             
         def convert_to_type(value, target_type, field=None):
+            if value is None:
+                return value
             easy = ["int", "str"]
             name = target_type.__name__
             if name.startswith("NullableValue"):
@@ -1940,7 +1950,6 @@ class ImportMultipleXmlView(BaseView):
                 ei_mapper = {}
                 for subjectOf2 in subjectOf2s:
                     observation = self.find(subjectOf2, "observation")
-                    organizer = self.find(subjectOf2, "organizer")
                     if observation is not None:
                         code_subjectOf2 = self.find(observation, "code")
                         code_subjectOf2_code_value = code_subjectOf2.get("code")
@@ -2070,6 +2079,8 @@ class ImportMultipleXmlView(BaseView):
                                     # E.i.8
                                     set_icsr_field(valueOutboundRelationship, "value", reaction, "e_i_8_medical_confirmation_healthcare_professional")  
                             ei.append(reaction)
+                for subjectOf2 in subjectOf2s:
+                    organizer = self.find(subjectOf2, "organizer")
                     if organizer is not None:
                         code_subjectOf2 = self.find(organizer, "code").get("code")
                         if code_subjectOf2 == "1":
@@ -2201,7 +2212,6 @@ class ImportMultipleXmlView(BaseView):
                                     # F.r.3.4
                                     set_icsr_field(valTmp, None, tests_procedures, "f_r_3_4_result_unstructured_data")
                                 fr.append(tests_procedures)
-
                         elif code_subjectOf2 == "4":
                             # drugInformation
                             components = self.find(organizer, "component", False)
@@ -2261,8 +2271,6 @@ class ImportMultipleXmlView(BaseView):
                                 # G.k.2.4
                                 set_icsr_field(country, None, drug_info, "g_k_2_4_identification_country_drug_obtained")
                                 outboundRelationship1s = self.find(substanceAdministration, "outboundRelationship1")
-                                # if icsr.id is None:
-                                #     icsr, _ = self.domain_service.create(icsr)
                                 for i, outboundRelationship1 in enumerate(outboundRelationship1s, start=0):
                                     ei_obj = ei_mapper[self.find(self.find(outboundRelationship1, "actReference"), "id").get("root")]
                                     reaction_matrix = G_k_9_i_drug_reaction_matrix(g_k_9_i_1_reaction_assessed=ei_obj.uuid)
