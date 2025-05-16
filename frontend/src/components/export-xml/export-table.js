@@ -7,7 +7,8 @@ export const ExportTable = ({
     exportList,
     onExport,
     onExclude,
-    title = "Export Selected Cases"
+    title = "Export Selected Cases",
+    loading = false
 }) => {
     return (
         <DataTable 
@@ -20,6 +21,7 @@ export const ExportTable = ({
             actionButtonLabel="Export"
             canOpenItems={true}
             showIdColumn={true}
+            loading={loading}
         />
     );
 };

@@ -2,8 +2,6 @@ import React, { useState, useRef } from 'react';
 import { useSnackbar } from 'notistack';
 import {
     displaySelector,
-    revertAll,
-    setShowCasesList,
     setShowUpload,
 } from '@src/features/display/slice';
 import { getCasesList } from '@src/features/cases-list/slice';
@@ -18,13 +16,14 @@ import {
     Typography,
 } from '@mui/material';
 import { DataTable } from '../common/DataTable';
-import { XML_API } from '@src/api/api.clients'; // Добавляем импорт XML_API
+import { XML_API } from '@src/api/api.clients';
 
 export const UploadXml = () => {
     const dispatch = useDispatch();
     const { showUpload } = useSelector(displaySelector);
     const { enqueueSnackbar } = useSnackbar();
     
+    const [validationResults, setValidationResults] = useState([]);
     const [xmlFiles, setXmlFiles] = useState([]);
     const [showDataTable, setShowDataTable] = useState(false);
     const fileInputRef = useRef(null);
@@ -34,31 +33,98 @@ export const UploadXml = () => {
         dispatch(setShowUpload(false));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         if (e.target.files && e.target.files.length > 0) {
             const files = Array.from(e.target.files);
+            console.log("Selected files:", files.map(f => f.name));
             
-            const filesWithValidation = files.map((file, index) => ({
-                tempId: `temp_${index}_${Date.now()}`,
-                fileName: file.name,
-                file: file,
-                isValid: false,
-                missingFields: [
-                    {
-                        id: "c_1_2_date_creation",
-                        label: "C.1.2 Date of Creation",
-                        description: "Date when this report was first created",
-                    },
-                    {
-                        id: "e_i_2_1b_reaction",
-                        label: "E.i.2.1b Reaction/Event MedDRA term (PT)",
-                        description: "MedDRA term for the reported reaction/event",
+            try {
+                const xmlContentsPromises = files.map((file) => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve({
+                            fileName: file.name,
+                            content: e.target.result,
+                            file: file
+                        });
+                        reader.onerror = (e) => reject(new Error(`Error reading file ${file.name}`));
+                        reader.readAsText(file);
+                    });
+                });
+    
+                console.log("Reading files...");
+                const filesData = await Promise.all(xmlContentsPromises);
+                console.log("Files read successfully:", filesData.length);
+                
+                const xmlContents = filesData.map(fileData => fileData.content);
+                
+                console.log("Sending XML contents for validation...");
+                const validationResults = await XML_API.validateImportXML(xmlContents);
+                console.log("Validation results:", validationResults);
+                
+                if (!Array.isArray(validationResults)) {
+                    console.error("validateMultipleXml did not return an array:", validationResults);
+                    throw new Error("Invalid response format from validation API");
+                }
+                
+                console.log("Processing validation results...");
+                const processedResults = filesData.map((fileData, index) => {
+                    console.log(`Processing file ${index}: ${fileData.fileName}`);
+                    
+                    const fileValidationResult = validationResults[index];
+                    console.log(`Validation result for file ${index}:`, fileValidationResult);
+                    
+                    if (!fileValidationResult) {
+                        console.warn(`No validation result for file ${index}`);
+                        return {
+                            tempId: `temp_${index}_${Date.now()}`,
+                            fileName: fileData.fileName,
+                            file: fileData.file,
+                            isValid: false,
+                            missingFields: [{
+                                id: "validation_error",
+                                label: "Validation Error",
+                                description: "No validation result for this file",
+                                externalKey: "system"
+                            }]
+                        };
                     }
-                ]
-            }));
-            
-            setXmlFiles(filesWithValidation);
-            setShowDataTable(true);
+                    
+                    const allFieldErrors = [];
+                    
+                    Object.entries(fileValidationResult).forEach(([externalKey, fieldErrors]) => {
+                        console.log(`Processing external key ${externalKey} for file ${index}`);
+                        
+                        Object.entries(fieldErrors).forEach(([fieldId, errorMessage]) => {
+                            allFieldErrors.push({
+                                id: fieldId,
+                                label: fieldId,
+                                description: String(errorMessage),
+                                externalKey: externalKey
+                            });
+                        });
+                    });
+                    
+                    console.log(`Field errors for file ${index}:`, allFieldErrors);
+                    
+                    return {
+                        tempId: `temp_${index}_${Date.now()}`,
+                        fileName: fileData.fileName,
+                        file: fileData.file,
+                        isValid: allFieldErrors.length === 0,
+                        missingFields: allFieldErrors
+                    };
+                });
+                
+                console.log("Processed results:", processedResults);
+                setValidationResults(processedResults);
+                
+                setXmlFiles(processedResults);
+                setShowDataTable(true);
+            } catch (error) {
+                console.error("Error processing files:", error);
+                enqueueSnackbar(`Error processing files: ${error.message}`, { variant: "error" });
+            }
         }
     };
 

@@ -1,30 +1,137 @@
-import { HTTP } from './api';
-import { clientER, XML_API_CLIENT } from './clients';
+import { XML_API_CLIENT } from './clients';
 
 export const XML_API = {
-    validateExportXml: async (id?: string | number): Promise<{missing_fields: Array<any>}> => {
+    validateExportXML: async (caseIds: Array<string | number>): Promise<{ [key: string]: { [field_id: string]: string } }[]> => {
         try {
-            console.log('Validating export XML for ID:', id);
+            console.log('Validating export for cases:', caseIds);
             
-            return {
-                missing_fields: [
-                    {
-                        id: "c_1_2_date_creation",
-                        label: "C.1.2 Date of Creation",
-                        description: "Date when this report was first created",
-                        type: "date"
-                    },
-                    {
-                        id: "e_i_2_1b_reaction",
-                        label: "E.i.2.1b Reaction/Event MedDRA term (PT)",
-                        description: "MedDRA term for the reported reaction/event",
-                        type: "select"
-                    }
-                ]
-            };
+            interface ValidationStatus {
+                [fieldId: string]: string;
+            }
+    
+            interface FileValidationStatus {
+                success: boolean;
+                "C.1.1": number | string;
+                validation_status: ValidationStatus;
+            }
+    
+            interface FileResponse {
+                success: boolean;
+                file_validation_status: FileValidationStatus[];
+            }
+    
+            interface ApiResponse {
+                results: FileResponse[];
+                total: number;
+                successful: number;
+                failed: number;
+            }
+            
+            console.log('Request payload:', { ids: caseIds, validation: true });
+            
+            const response = await XML_API_CLIENT.post<ApiResponse>('export-multiple', { 
+                data: { ids: caseIds, validation: true }
+            });
+            
+            console.log('Response from validation API:', response);
+            
+            if (!response || !response.results) {
+                console.warn('Invalid response structure:', response);
+                return [];
+            }
+    
+            if (!response || !response.results) {
+                return [];
+            }
+    
+            const typedResponse = response.results.map((fileResponse: FileResponse) => {
+                const fileValidationStatuses = fileResponse.file_validation_status || [];
+                console.log('Check:', fileValidationStatuses);
+                
+                const formattedResult: { [key: string]: { [field_id: string]: string } } = {};
+                
+                fileValidationStatuses.forEach((status: FileValidationStatus) => {
+                    const externalKey = String(status["C.1.1"] || "unknown");
+                    
+                    const validationStatus = status.validation_status || {};
+                    console.log('Check2:', validationStatus);
+
+                    formattedResult[externalKey] = {};
+                    
+                    Object.entries(validationStatus).forEach(([fieldId, errorMsg]) => {
+                        formattedResult[externalKey][fieldId] = errorMsg;
+                    });
+                });
+                
+
+                return formattedResult;
+            });
+            
+            return typedResponse;
         } catch (error) {
-            console.error('Error validating export XML:', error);
-            return { missing_fields: [] };
+            console.error('Error validating export cases:', error);
+            return [];
+        }
+    },
+
+    validateImportXML: async (xmlContents: string[]): Promise<{ [key: string]: { [field_id: string]: string } }[]> => {
+        try {
+            console.log('Validating multiple import XML');
+            
+            interface ValidationStatus {
+                [fieldId: string]: string;
+            }
+    
+            interface FileValidationStatus {
+                success: boolean;
+                "C.1.1": number | string;
+                validation_status: ValidationStatus;
+            }
+    
+            interface FileResponse {
+                success: boolean;
+                file_validation_status: FileValidationStatus[];
+            }
+    
+            interface ApiResponse {
+                results: FileResponse[];
+                total: number;
+                successful: number;
+                failed: number;
+            }
+            
+            const response = await XML_API_CLIENT.post<ApiResponse>('import-multiple', { 
+                data: { files: xmlContents, validation: true }
+            });
+    
+            if (!response || !response.results) {
+                return [];
+            }
+    
+            const typedResponse = response.results.map((fileResponse: FileResponse) => {
+                const fileValidationStatuses = fileResponse.file_validation_status || [];
+                
+                const formattedResult: { [key: string]: { [field_id: string]: string } } = {};
+                
+                fileValidationStatuses.forEach((status: FileValidationStatus) => {
+                    const externalKey = String(status["C.1.1"] || "unknown");
+                    
+                    const validationStatus = status.validation_status || {};
+                    
+                    formattedResult[externalKey] = {};
+                    
+                    Object.entries(validationStatus).forEach(([fieldId, errorMsg]) => {
+                        formattedResult[externalKey][fieldId] = errorMsg;
+                    });
+                });
+                
+                return formattedResult;
+            });
+            
+            return typedResponse;
+        } catch (error) {
+            console.error('Error validating multiple XMLs:', error);
+            return [];
         }
     },
     

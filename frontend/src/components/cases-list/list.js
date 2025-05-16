@@ -4,20 +4,6 @@ import { ExportTable } from '../export-xml/export-table';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Typography,
-    Button,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    IconButton,
     Fab,
 } from '@mui/material';
 import {
@@ -35,11 +21,8 @@ import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import 'handsontable/dist/handsontable.full.min.css';
 import { textRenderer } from 'handsontable/renderers/textRenderer';
-import { getIdOfMeddraVersion, getMeddraReleases } from '@src/features/meddra/slice';
-import DeleteIcon from '@mui/icons-material/Delete';
-import InfoIcon from '@mui/icons-material/Info';
+import { getMeddraReleases } from '@src/features/meddra/slice';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import ErrorIcon from '@mui/icons-material/Error';
 
 registerAllModules();
 const hotTableRef = React.createRef();
@@ -52,6 +35,7 @@ export const CasesList = () => {
     const [infoDialogOpen, setInfoDialogOpen] = useState(false);
     const [currentInfoCase, setCurrentInfoCase] = useState(null);
     const [exportingList, setExportingList] = useState([]);
+    const [isValidating, setIsValidating] = useState(false);
 
     useEffect(() => {
         dispatch(getCasesList());
@@ -90,44 +74,84 @@ export const CasesList = () => {
         setSelectedCases(newSelectedCases);
     };
 
-    const openExportDialog = () => {
+    const openExportDialog = async () => {
         const selectedIds = Object.keys(selectedCases).filter(id => selectedCases[id]);
         
         if (selectedIds.length === 0) {
             return;
         }
         
-        const selectedCasesData = [];
+        setIsValidating(true);
         
-        selectedIds.forEach(id => {
-            const caseObj = cases.find(c => String(c.id) === id);
-            if (caseObj) {
-                selectedCasesData.push({
-                    id: String(caseObj.id),
-                    display_id: String(caseObj.id), // Это будет использоваться для отображения в таблице
-                    case_number: caseObj.case_number || String(caseObj.id),
-                    isValid: false,
-                    missingFields: [
-                        {
-                            id: "c_1_2_date_creation",
-                            label: "C.1.2 Date of Creation",
-                            description: "Date when this report was first created",
-                        },
-                        {
-                            id: "e_i_2_1b_reaction",
-                            label: "E.i.2.1b Reaction/Event MedDRA term (PT)",
-                            description: "MedDRA term for the reported reaction/event",
-                        }
-                    ]
+        try {
+            const selectedCasesData = [];
+            
+            selectedIds.forEach(id => {
+                const caseObj = cases.find(c => String(c.id) === id);
+                if (caseObj) {
+                    selectedCasesData.push({
+                        id: String(caseObj.id),
+                        display_id: String(caseObj.id),
+                        case_number: caseObj.case_number || String(caseObj.id),
+                        isValid: null,
+                        missingFields: []
+                    });
+                }
+            });
+            
+            console.log("Initial selected cases data:", selectedCasesData);
+            
+            setExportingList(selectedCasesData);
+            setExportDialogOpen(true);
+            
+            const caseIds = selectedCasesData.map(item => item.id);
+            console.log("Calling validateExportXML with caseIds:", caseIds);
+            
+            const validationResults = await XML_API.validateExportXML(caseIds);
+            console.log("Validation results received:", validationResults);
+            
+            const validatedCasesData = selectedCasesData.map((caseItem, index) => {
+                const caseValidation = validationResults[index] || {};
+                const allFieldErrors = [];
+                
+                console.log(`Processing validation for case ${caseItem.id}:`, caseValidation);
+                
+                Object.entries(caseValidation).forEach(([externalKey, fieldErrors]) => {
+                    console.log(`Processing external key ${externalKey}:`, fieldErrors);
+                    
+                    Object.entries(fieldErrors).forEach(([fieldId, errorMessage]) => {
+                        allFieldErrors.push({
+                            id: fieldId,
+                            label: fieldId,
+                            description: String(errorMessage),
+                            externalKey: externalKey
+                        });
+                    });
                 });
+                
+                console.log(`Field errors for case ${caseItem.id}:`, allFieldErrors);
+                
+                return {
+                    ...caseItem,
+                    isValid: allFieldErrors.length === 0,
+                    missingFields: allFieldErrors
+                };
+            });
+            
+            console.log("Final validated cases data:", validatedCasesData);
+            
+            setExportingList(validatedCasesData);
+        } catch (error) {
+            console.error("Error validating export cases:", error);
+            // Если произошла ошибка, можно показать сообщение
+            if (typeof enqueueSnackbar === 'function') {
+                enqueueSnackbar(`Error validating cases: ${error.message}`, { variant: 'error' });
             }
-        });
-        
-        console.log("Selected cases data:", selectedCasesData);
-        
-        setExportingList(selectedCasesData);
-        setExportDialogOpen(true);
+        } finally {
+            setIsValidating(false);
+        }
     };
+      
     
     const closeExportDialog = () => {
         setExportDialogOpen(false);
@@ -305,7 +329,6 @@ export const CasesList = () => {
         <Box sx={{ position: 'relative', height: '100%' }}>
             {generateList()}
             
-            {}
             {hasSelectedCases && (
                 <Fab
                     color="primary"
@@ -325,11 +348,12 @@ export const CasesList = () => {
             
             <ExportTable 
                 open={exportDialogOpen}
-                onClose={closeExportDialog}
+                onClose={() => setExportDialogOpen(false)}
                 exportList={exportingList}
                 onExport={exportXML}
                 onExclude={excludeFromExport}
                 title="Export Selected Cases"
+                loading={isValidating}
             />
         </Box>
     );

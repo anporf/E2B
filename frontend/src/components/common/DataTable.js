@@ -224,7 +224,7 @@ export const DataTable = ({
                             >
                                 {itemsList && itemsList.find(item => (item.id || item.tempId) === currentInfoItem)?.missingFields?.map((field, index) => (
                                     <Typography key={index} variant="body2" gutterBottom sx={{ pl: 2 }}>
-                                        • {field.label}: {field.description}
+                                        • {field.label}: {field.description} (C.1.1 = {field.externalKey})
                                     </Typography>
                                 )) || (
                                     <Typography variant="body2">

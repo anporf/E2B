@@ -328,14 +328,41 @@ class ExportMultipleXmlView(BaseView):
         try:
             data = json.loads(request.body)
             icsr_ids = data.get('ids', [])
+            is_validation = data.get('validation', False)
             
             if not icsr_ids:
                 return http.HttpResponse('No ICSR IDs provided', status=HTTPStatus.BAD_REQUEST)
             
             icsr_list = []
+            result_file = []
+            results = []
             for icsr_id in icsr_ids:
                 try:
                     icsr = self.domain_service.read(self.model_class, icsr_id)
+                    if is_validation:
+                        icsr, _ = self.domain_service.business_validate(icsr)
+                        def make_pretty_errors(errors):
+                            res = {}
+                            for k in errors:
+                                if not isinstance(errors[k], dict):
+                                    res[k] = errors[k]
+                                    continue
+                                pretty_res = make_pretty_errors(errors[k])
+                                if k not in ["_self", "buisness"]:
+                                    pretty_res_new = {}
+                                    for key, val in pretty_res.items():
+                                        pretty_res_new[f'{k}__{key}'] = val
+                                    pretty_res = pretty_res_new
+                                res.update(pretty_res)
+                            return res
+                        results.append({
+                            "success": True,
+                            "file_validation_status": [{
+                                "success": True,
+                                "C.1.1": icsr.c_1_identification_case_safety_report.c_1_1_sender_safety_report_unique_id["value"],
+                                "validation_status": make_pretty_errors(icsr.errors)
+                            }]
+                        })
                     icsr_list.append(icsr)
                 except Exception as e:
                     print(f"Error retrieving ICSR {icsr_id}: {str(e)}")
@@ -343,16 +370,27 @@ class ExportMultipleXmlView(BaseView):
             
             if not icsr_list:
                 return http.HttpResponse('None of the requested ICSRs could be retrieved', 
-                                        status=HTTPStatus.NOT_FOUND)
+                                        status=HTTPStatus.INTERNAL_SERVER_ERROR)
             
-            combined_xml = self.convert_multiple_to_xml(icsr_list)
+            if not is_validation:
+                combined_xml = self.convert_multiple_to_xml(icsr_list)
+                
+                filename = f"e2b_export_{icsr_list[0].id}_{len(icsr_list)}_records_{djtz.now().strftime('%Y%m%d%H%M%S')}.xml"
+                
+                response = http.HttpResponse(combined_xml, content_type='application/xml')
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+
             
-            filename = f"e2b_export_{icsr_list[0].id}_{len(icsr_list)}_records_{djtz.now().strftime('%Y%m%d%H%M%S')}.xml"
+            else:
+                response_data = {
+                    "results": results,
+                    "total": len(icsr_ids),
+                    "successful": sum(1 for r in results if r.get("success", False)),
+                    "failed": sum(1 for r in results if not r.get("success", False))
+                }
+                return self.respond_with_object_as_json(response_data, HTTPStatus.OK)
             
-            response = http.HttpResponse(combined_xml, content_type='application/xml')
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            
-            return response
             
         except Exception as e:
             traceback.print_exc()
@@ -1446,7 +1484,7 @@ class ExportMultipleXmlView(BaseView):
                 set_icsr_field(tmp_var, "code", c1, "c_1_3_type_report")
             elif code == "2":
                 # C.1.9.1
-                set_text_icsr_field_with_null(tmp_var, None, c1, "c_1_9_1_other_case_ids_previous_transmissions")
+                set_text_icsr_field_with_null(tmp_var, "value", c1, "c_1_9_1_other_case_ids_previous_transmissions")
             elif code == "3":
                 # C.1.11.1
                 set_icsr_field(tmp_var, "code", c1, "c_1_11_1_report_nullification_amendment")
@@ -1468,13 +1506,12 @@ class ExportMultipleXmlView(BaseView):
 class ImportMultipleXmlView(BaseView):
     @log
     def post(self, request: http.HttpRequest) -> http.HttpResponse:
-        # try:
-        files_data = json.loads(request.body)
-        xml_contents = files_data.get('files', [])
-        results = []
-
-        for idx, xml_content in enumerate(xml_contents):
-            try:
+        try:
+            files_data = json.loads(request.body)
+            xml_contents = files_data.get('files', [])
+            is_validation = files_data.get('validation', False)
+            results = []
+            for idx, xml_content in enumerate(xml_contents):
                 root = etree.fromstring(xml_content.encode('utf-8'))
                 
                 porr_elements = self.find(root, "PORR_IN049016UV")
@@ -1486,32 +1523,63 @@ class ImportMultipleXmlView(BaseView):
                         "error": "PORR_IN049016UV element not found"
                     })
                     continue
-                
+                iscr_ids = []
+                result_file = []
                 for i, porr_elem in enumerate((porr_elements if isinstance(porr_elements, list) else [porr_elements]), start=1):
-                        icsr = ICSR()
-                        icsr = self.import_single_xml(porr_elem, icsr)
-                        icsr, status = self.domain_service.create(icsr)
-                        
-                        if not status:
-                            raise Exception(json.dumps(icsr.errors, indent=2))
-                        results.append({
+                    icsr = ICSR()
+                    icsr = self.import_single_xml(porr_elem, icsr)
+                    if is_validation:
+                        icsr, _ = self.domain_service.business_validate(icsr)
+                        def make_pretty_errors(errors):
+                            res = {}
+                            for k in errors:
+                                if not isinstance(errors[k], dict):
+                                    res[k] = errors[k]
+                                    continue
+                                pretty_res = make_pretty_errors(errors[k])
+                                if k not in ["_self", "buisness"]:
+                                    pretty_res_new = {}
+                                    for key, val in pretty_res.items():
+                                        pretty_res_new[f'{k}__{key}'] = val
+                                    pretty_res = pretty_res_new
+                                res.update(pretty_res)
+                            return res
+
+                        result_file.append({
                             "success": True,
-                            "filename": f"file_{idx}",
-                            "icsr_result_id": icsr.id
+                            "C.1.1": icsr.c_1_identification_case_safety_report.c_1_1_sender_safety_report_unique_id["value"],
+                            "validation_status": make_pretty_errors(icsr.errors)
                         })
-                        response_data = {
-                            "results": results,
-                            "total": len(xml_contents),
-                            "successful": sum(1 for r in results if r.get("success", False)),
-                            "failed": sum(1 for r in results if not r.get("success", False))
-                        }
+                        continue
+                    icsr, status = self.domain_service.create(icsr)
                     
-                        return self.respond_with_object_as_json(response_data, HTTPStatus.OK)
-            except Exception as e:
-                traceback.print_exc()
-                print(f"Error in ImportMultipleXmlView: {str(e)}")
-                return http.HttpResponse(f'Error processing request: {str(e)}', 
-                                        status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                    if not status:
+                        raise Exception(json.dumps(icsr.errors, indent=2))
+                    iscr_ids.append(icsr.id)
+                if is_validation:
+                    results.append({
+                        "success": True,
+                        "file_validation_status": result_file,
+                    })
+                else:
+                    results.append({
+                        "success": True,
+                        "filename": f"file_{idx}",
+                        "icsr_result_ids": iscr_ids
+                    })
+            response_data = {
+                "results": results,
+                "total": len(xml_contents),
+                "successful": sum(1 for r in results if r.get("success", False)),
+                "failed": sum(1 for r in results if not r.get("success", False))
+            }
+            return self.respond_with_object_as_json(response_data, HTTPStatus.OK)
+        except Exception as e:
+            traceback.print_exc()
+            print(f"Error in ImportMultipleXmlView: {str(e)}")
+            return http.HttpResponse(f'Error processing request: {str(e)}', 
+                                    status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
 
     @staticmethod
     def find(root, field, pretty=True):
@@ -1523,8 +1591,7 @@ class ImportMultipleXmlView(BaseView):
             return res[0]
         elif len(res) >= 1:
             return res 
-
-        
+  
     @staticmethod
     def set_id_sender_receiver_creation_time(root):
         ImportMultipleXmlView.find(root, 'id').set('extension', str(uuid.uuid4()))
@@ -2581,7 +2648,7 @@ class ImportMultipleXmlView(BaseView):
                 set_icsr_field(tmp_var, "code", c1, "c_1_3_type_report")
             elif code == "2":
                 # C.1.9.1
-                set_text_icsr_field_with_null(tmp_var, None, c1, "c_1_9_1_other_case_ids_previous_transmissions")
+                set_text_icsr_field_with_null(tmp_var, "value", c1, "c_1_9_1_other_case_ids_previous_transmissions")
             elif code == "3":
                 # C.1.11.1
                 set_icsr_field(tmp_var, "code", c1, "c_1_11_1_report_nullification_amendment")

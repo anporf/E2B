@@ -317,7 +317,7 @@ class PostValidationProcessor:
         is_abort_next: bool = False,
         is_add_single_error: bool = False,
         is_add_error_manually: bool = False,
-        error_type: CustomErrorType = CustomErrorType.PARSING
+        error_type: CustomErrorType = CustomErrorType.PARSING,
     ) -> None:
         """
         Calls validation for fields.
@@ -333,17 +333,15 @@ class PostValidationProcessor:
         if is_add_error_manually:
             field_names.pop(0)
 
-        valid_data = {}
         initial_data = {}
         try:
             for field_name in field_names:
-                valid_data[field_name] = self._valid_data[field_name]
                 initial_data[field_name] = self._initial_data[field_name]
         except KeyError:
             # If some data is missing, it haven't been parsed and valdiaion shouldn't be done
             return
         
-        args = valid_data.values()
+        args = initial_data.values()   
         if is_add_error_manually:
             is_valid = validate(self, *args) 
         else:
